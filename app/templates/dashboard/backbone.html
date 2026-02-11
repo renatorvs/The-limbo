@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block title %}Backbone Financeiro - THE-LIMBO{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Backbone: Finanças & Operações</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <button type="button" class="btn btn-outline-secondary me-2 shadow-sm" data-bs-toggle="modal"
+                data-bs-target="#newBankAccountModal">
+                <i class="fas fa-university me-1"></i> Nova Conta
+            </button>
+            <button type="button" class="btn btn-outline-secondary me-2 shadow-sm" data-bs-toggle="modal"
+                data-bs-target="#newCostCenterModal">
+                <i class="fas fa-tags me-1"></i> Novo Centro de Custo
+            </button>
+            <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal"
+                data-bs-target="#newTransactionModal">
+                <i class="fas fa-plus me-1"></i> Nova Transação
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-start border-4 border-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Saldo Total</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">R$ {{ stats.total_balance }}</div>
+                        </div>
+                        <div class="col-auto text-gray-300">
+                            <i class="fas fa-university fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-start border-4 border-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Burn Rate Mensal</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">R$ {{ stats.burn_rate }}</div>
+                        </div>
+                        <div class="col-auto text-gray-300">
+                            <i class="fas fa-fire fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-start border-4 border-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Headcount (Equipe)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.headcount }}</div>
+                        </div>
+                        <div class="col-auto text-gray-300">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bank Accounts Section -->
+    <div class="row mb-4">
+        {% for account in bank_accounts %}
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                {{ account.bank_name }} ({{ account.account_type }})</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ account.currency }} {{
+                                account.current_balance }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-university fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Cost Centers Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary">Centros de Custo</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Código</th>
+                                    <th>Orçamento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cc in cost_centers %}
+                                <tr>
+                                    <td>{{ cc.name }}</td>
+                                    <td>{{ cc.code }}</td>
+                                    <td>R$ {{ cc.budget_limit }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-white">
+            <h6 class="m-0 font-weight-bold text-primary">Livro Razão Geral</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="ledgerTable" width="100%" cellspacing="0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Centro de Custo</th>
+                            <th>Valor</th>
+                            <th>Recorrência</th>
+                            <th>Docs</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for txn in ledger_entries %}
+                        <tr>
+                            <td>{{ txn.transaction_date.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ txn.description }}</td>
+                            <td><span class="badge bg-secondary">CC-{{ txn.cost_center_id }}</span></td>
+                            <td
+                                class="{% if txn.type == 'revenue' or txn.type == 'income' %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                {% if txn.type == 'revenue' or txn.type == 'income' %}+{% else %}-{% endif %}R$ {{
+                                txn.amount }}
+                            </td>
+                            <td>
+                                {% if txn.is_recurring %}
+                                <span class="badge bg-info text-dark">{{ txn.recurrence_period }}</span>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if txn.document_url %}
+                                <a href="{{ txn.document_url }}" class="text-secondary" target="_blank"><i
+                                        class="fas fa-file-invoice"></i></a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="newTransactionModal" tabindex="-1" aria-labelledby="newTransactionModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="newTransactionModalLabel">Registrar Nova Transação</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="transactionDate" class="form-label fw-bold">Data</label>
+                        <input type="date" class="form-control" id="transactionDate" name="transaction_date">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-bold">Descrição</label>
+                        <input type="text" class="form-control" id="description" name="description"
+                            placeholder="Ex: Aluguel do Escritório">
+                    </div>
+                    <div class="mb-3">
+                        <label for="costCenter" class="form-label fw-bold">Centro de Custo</label>
+                        <select class="form-select" id="costCenter" name="cost_center_id">
+                            <option value="">Selecione...</option>
+                            {% for cc in cost_centers %}
+                            <option value="{{ cc.id }}">{{ cc.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bankAccount" class="form-label fw-bold">Conta Bancária</label>
+                        <select class="form-select" id="bankAccount" name="account_id">
+                            <option value="">Selecione...</option>
+                            {% for acc in bank_accounts %}
+                            <option value="{{ acc.id }}">{{ acc.bank_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label for="type" class="form-label fw-bold">Tipo de Gasto</label>
+                        <select class="form-select" id="type">
+                            <option value="opex">OPEX (Operacional)</option>
+                            <option value="revenue">Receita (Revenue)</option>
+                            <option value="cogs">CPV (COGS)</option>
+                            <option value="capex">CAPEX (Investimento)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label fw-bold">Valor</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="number" step="0.01" class="form-control" id="amount" placeholder="0,00">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="isRecurring">
+                            <label class="form-check-label" for="isRecurring">
+                                Transação Recorrente?
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fileUpload" class="form-label fw-bold">Anexar Comprovante</label>
+                        <input class="form-control" type="file" id="fileUpload">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="submitCreateTransaction()">Salvar
+                    Transação</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- New Bank Account Modal -->
+<div class="modal fade" id="newBankAccountModal" tabindex="-1" aria-labelledby="newBankAccountModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title" id="newBankAccountModalLabel">Nova Conta Bancária</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createBankAccountForm">
+                    <div class="mb-3">
+                        <label for="bankName" class="form-label fw-bold">Banco</label>
+                        <input type="text" class="form-control" id="bankName" name="bank_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="accountType" class="form-label fw-bold">Tipo de Conta</label>
+                        <select class="form-select" id="accountType" name="account_type">
+                            <option value="Checking">Corrente</option>
+                            <option value="Savings">Poupança</option>
+                            <option value="Investment">Investimento</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="currency" class="form-label fw-bold">Moeda</label>
+                        <select class="form-select" id="currency" name="currency">
+                            <option value="BRL">BRL</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="initialBalance" class="form-label fw-bold">Saldo Inicial</label>
+                        <input type="number" step="0.01" class="form-control" id="initialBalance" name="current_balance"
+                            value="0.00">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="submitCreateBankAccount()">Salvar
+                    conta</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Cost Center Modal -->
+<div class="modal fade" id="newCostCenterModal" tabindex="-1" aria-labelledby="newCostCenterModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title" id="newCostCenterModalLabel">Novo Centro de Custo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createCostCenterForm">
+                    <div class="mb-3">
+                        <label for="ccName" class="form-label fw-bold">Nome</label>
+                        <input type="text" class="form-control" id="ccName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ccCode" class="form-label fw-bold">Código</label>
+                        <input type="text" class="form-control" id="ccCode" name="code" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ccBudget" class="form-label fw-bold">Orçamento Limite</label>
+                        <input type="number" step="0.01" class="form-control" id="ccBudget" name="budget_limit"
+                            value="0.00">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="submitCreateCostCenter()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function submitCreateBankAccount() {
+        const form = document.getElementById('createBankAccountForm');
+        const data = {
+            bank_name: form.bank_name.value,
+            account_type: form.account_type.value,
+            currency: form.currency.value,
+            current_balance: parseFloat(form.current_balance.value)
+        };
+
+        try {
+            const response = await fetch('/api/v1/backbone/bank-accounts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Conta criada com sucesso!');
+                location.reload();
+            } else {
+                const error = await response.json();
+                alert('Erro ao criar conta: ' + JSON.stringify(error));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Um erro ocorreu ao criar a conta.');
+        }
+    }
+
+    async function submitCreateCostCenter() {
+        const form = document.getElementById('createCostCenterForm');
+        const data = {
+            name: form.name.value,
+            code: form.code.value,
+            budget_limit: parseFloat(form.budget_limit.value)
+        };
+
+        try {
+            const response = await fetch('/api/v1/backbone/costcenter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Centro de Custo criado com sucesso!');
+                location.reload();
+            } else {
+                const error = await response.json();
+                alert('Erro ao criar centro de custo: ' + JSON.stringify(error));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Um erro ocorreu ao criar o centro de custo.');
+        }
+    }
+
+    async function submitCreateTransaction() {
+        const date = document.getElementById('transactionDate').value;
+        const description = document.getElementById('description').value;
+        const type = document.getElementById('type').value;
+        const amount = document.getElementById('amount').value;
+        const isRecurring = document.getElementById('isRecurring').checked;
+        const costCenterId = document.getElementById('costCenter').value;
+        const accountId = document.getElementById('bankAccount').value;
+
+        const data = {
+            transaction_date: date,
+            description: description,
+            type: type,
+            amount: parseFloat(amount),
+            is_recurring: isRecurring,
+            recurrence_period: isRecurring ? "monthly" : null,
+            status: "PAID", // Defaulting to PAID for now
+            cost_center_id: costCenterId || null,
+            account_id: accountId || null
+        };
+
+        try {
+            const response = await fetch('/api/v1/backbone/transaction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Transação registrada com sucesso!');
+                location.reload();
+            } else {
+                const error = await response.json();
+                alert('Erro ao registrar transação: ' + JSON.stringify(error));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Um erro ocorreu ao registrar a transação.');
+        }
+    }
+</script>
+{% endblock %}

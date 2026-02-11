@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Glossário de Negócios Master - THE-LIMBO{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h2 mb-4">Glossário de Negócios</h1>
+    <p class="lead text-muted mb-4">Definições consolidadas de todos os módulos do sistema para alinhamento estratégico.
+    </p>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 20%;">Termo</th>
+                                    <th style="width: 15%;">Abreviação</th>
+                                    <th style="width: 45%;">Definição</th>
+                                    <th style="width: 20%;">Módulo de Origem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold">Burn Rate Mensal</td>
+                                    <td>-</td>
+                                    <td>A taxa na qual a empresa está gastando seu capital para financiar custos
+                                        operacionais antes de gerar lucro.</td>
+                                    <td><span class="badge bg-primary">Backbone (Finanças)</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Margem Bruta</td>
+                                    <td>GM</td>
+                                    <td>Porcentagem do faturamento restante após considerar os custos de prestação do
+                                        serviço.</td>
+                                    <td><span class="badge bg-primary">Backbone (Finanças)</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td class="fw-bold">Custo de Aquisição de Cliente</td>
+                                    <td>CAC</td>
+                                    <td>O investimento total em marketing e vendas necessário para adquirir um novo
+                                        cliente.</td>
+                                    <td><span class="badge bg-success">Crescimento</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Valor de Vida Útil</td>
+                                    <td>LTV</td>
+                                    <td>Mede o valor total que um cliente investe na empresa durante todo o seu período
+                                        de relacionamento.</td>
+                                    <td><span class="badge bg-success">Crescimento</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Faturamento Recorrente Anual</td>
+                                    <td>ARR</td>
+                                    <td>Cálculo da receita recorrente projetada para o período de um ano (MRR x 12).
+                                    </td>
+                                    <td><span class="badge bg-success">Crescimento</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Receita Média por Cliente</td>
+                                    <td>ARPA</td>
+                                    <td>A receita mensal média gerada por cada conta ativa no sistema.</td>
+                                    <td><span class="badge bg-success">Crescimento</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Ticket Médio</td>
+                                    <td>-</td>
+                                    <td>Valor médio que cada cliente gasta em compras ou mensalidades na empresa.</td>
+                                    <td><span class="badge bg-success">Crescimento</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Taxa de Conversão de Leads</td>
+                                    <td>LCR</td>
+                                    <td>Percentual de leads gerados que efetivamente se tornam clientes pagantes.</td>
+                                    <td><span class="badge bg-success">Crescimento</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Velocidade de Leads</td>
+                                    <td>LVR</td>
+                                    <td>Métrica que mede a velocidade e o crescimento da geração de leads mês a mês.
+                                    </td>
+                                    <td><span class="badge bg-success">Crescimento</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Receita de Expansão</td>
+                                    <td>-</td>
+                                    <td>Receita adicional vinda de clientes atuais através de upsells ou cross-sells.
+                                    </td>
+                                    <td><span class="badge bg-success">Crescimento</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Taxa de Crescimento</td>
+                                    <td>Growth</td>
+                                    <td>Porcentagem nominal de crescimento da receita entre dois períodos (MoM, QoQ ou
+                                        YoY).</td>
+                                    <td><span class="badge bg-success">Crescimento</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Métrica Estrela-Guia</td>
+                                    <td>North Star</td>
+                                    <td>Indicador chave que reflete o impacto direto do produto na vida do cliente e
+                                        guia o foco da empresa.</td>
+                                    <td><span class="badge bg-success">Crescimento</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Quick Ratio</td>
+                                    <td>-</td>
+                                    <td>Relação entre o MRR ganho e o MRR perdido, medindo a eficiência do crescimento.
+                                    </td>
+                                    <td><span class="badge bg-success">Crescimento</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td class="fw-bold">Receita Recorrente Mensal</td>
+                                    <td>MRR</td>
+                                    <td>Receita previsível gerada mensalmente por contas ativas e pagantes.</td>
+                                    <td><span class="badge bg-info text-dark">Sucesso do Cliente</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Taxa de Cancelamento</td>
+                                    <td>Churn</td>
+                                    <td>Percentual de clientes que deixam a base ativa em um determinado período.</td>
+                                    <td><span class="badge bg-info text-dark">Sucesso do Cliente</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Net Promoter Score</td>
+                                    <td>NPS</td>
+                                    <td>Metodologia para medir o nível de satisfação e lealdade dos clientes.</td>
+                                    <td><span class="badge bg-info text-dark">Sucesso do Cliente</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td class="fw-bold">Geração Aumentada de Recuperação</td>
+                                    <td>RAG</td>
+                                    <td>Estrutura de IA que fundamenta respostas em dados externos reais da empresa.
+                                    </td>
+                                    <td><span class="badge bg-warning text-dark">Consultoria</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

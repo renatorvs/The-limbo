@@ -1,0 +1,233 @@
+1. CAC (custo de aquisição de clientes)
+Para ter uma base de clientes maior, é necessário investir em diversas estratégias de marketing. 
+
+Por isso, uma empresa SaaS precisa entender qual é o custo para adquirir novos clientes.
+
+Apesar de não apresentar detalhes qualitativos sobre o investimento, o CAC é uma das métricas SaaS que contribui muito para projeções de gastos e alinhamento com as estratégias da sua empresa.
+
+Além da previsão para que os custos de aquisição de novos clientes sejam recuperados.
+
+Como calcular o CAC?
+A análise do CAC começa com a soma dos investimentos em vendas e marketing do último mês com as despesas.
+
+Depois, divida o número do resultado pelo total de clientes novos que entraram na sua base ativa durante o mesmo período.
+
+Assim, você terá o valor médio que cada cliente custa.
+
+CAC = (investimentos em marketing + investimentos em vendas) / total de clientes conquistados.
+Exemplo:
+
+CAC = (20.000 + 15.000) / 80
+CAC = 437,50.
+Lembre-se que a ideia é otimizar o seu CAC, já que quando você paga mais caro para adquirir um cliente, a sua margem de lucro diminui.
+
+Portanto, custos muito altos podem demonstrar que as suas estratégias não têm um retorno interessante. 
+
+Não se esqueça, meça sempre o CAC para cada canal utilizado pelo seu negócio.
+
+2. LTV (valor do tempo de vida do cliente)
+O LTV, ou lifetime value, é uma das métricas SaaS que apresenta qual o valor de cada cliente para empresas, medindo o potencial que ele tem para comprar durante o relacionamento com o seu negócio.
+
+Ao analisar o churn e a base de clientes, é possível identificar qual é a média de tempo que um cliente permanece na sua base.
+
+Como calcular o LTV?
+LTV = (ticket médio x média de compras por tempo) x média de tempo que o cliente permaneceu na base.
+Exemplo: você tem um SaaS e seu ticket médio mensal é de R$ 200. Em média, seus clientes permanecem na sua base durante dois anos até o cancelamento.
+
+LTV = 200 (ticket médio) x 12 (número de mensalidades) x 2 (tempo até o cancelamento)
+LTV = 4.800.
+O LTV nesse caso é de R$ 4,8 mil, esse é o valor que um cliente investe na sua empresa durante o período de permanência.
+
+Com esta métrica, você pode rever suas estratégias de aquisição e retenção para saber se está trazendo o cliente certo.
+
+3. MRR (receita mensal recorrente)
+O MRR, monthly recurring revenue, é uma métrica SaaS que auxilia na construção sustentável do seu negócio.
+
+Por meio desse cálculo, você saberá sua receita mensal recorrente. 
+
+É importante acompanhar essa métrica mês a mês para conhecer a saúde do seu negócio.
+
+Como calcular o MRR?
+Primeiro, subtraia o número total das contas ativas, ou seja, pagantes, pelo número das contas que foram canceladas. 
+
+Depois, multiplique esse resultado pelo valor que é pago mensalmente.
+
+Existem outras fórmulas diferentes de cálculo do MRR, que levam em consideração: MRR cancelado, adicionado e novos (assim, você calcula o crescimento).
+
+O cálculo básico é:
+
+MRR = (clientes ativos – cancelamentos) x mensalidade.
+Exemplo:
+
+MRR = 300 – 20 x 100
+MRR = 28 mil.
+O progresso mínimo sustentável aponta, através da métrica do MRR, um crescimento a partir de 5% em relação ao churn do seu negócio.
+
+Por isso, se esse valor mínimo não for alcançado, pode ser que o seu negócio não consiga se sustentar e garantir lucros reais no futuro.
+
+4. Churn rate
+Uma boa estratégia de marketing das empresas SaaS é pensar na retenção de clientes como uma das melhores formas de conquistar resultados e crescer.
+
+O churn rate ajuda a mensurar o número de clientes que deixaram, por alguma razão, de fazer parte da sua base.
+
+Como calcular o churn rate?
+O cálculo do churn rate é bem simples. 
+
+Basta dividir o número mensal de cancelamentos pelo número dos clientes que ainda estão ativos em seu sistema.
+
+Também é possível fazer um cálculo para identificar qual é a média de retenção da sua base. 
+
+Para isso, divida 100 pelo percentual obtido no resultado médio do churn.
+
+Veja o exemplo:
+
+Quantidade de cancelamentos mensais: 50
+Número de Clientes no final do mês: 1.000
+Cálculo: 50 cancelamentos / 1.000 clientes atuais = 0,05% x 100 = 5%.
+Portanto, 5% é a taxa média de churn neste exemplo.
+Com a análise de resultados, de acordo com o índice de cancelamento, será possível direcionar os esforços para outros caminhos até reduzir o número de clientes que deixam de usar e pagar pelo seu SaaS.
+
+O churn (assim como o churn ideal) é uma das métricas SaaS mais importantes para medir a saúde do negócio.
+
+O que é churn negativo?
+Churn negativo é quando o aumento do seu faturamento (em clientes atuais) supera a perda de receita pelos cancelamentos.
+
+Aliás, essa é uma métrica muito saudável. 
+
+Quando isso acontece, o negócio demonstra-se extremamente sustentável.
+
+Contudo, um churn negativo não significa que você não teve cancelamentos. 
+
+Por isso, ainda precisa estar atento aos motivos de saída dos clientes para que esse número não cresça.
+
+5. ARPA (receita média por cliente)
+ARPA é a sigla para average revenue per account, ou seja, a receita mensal média por cliente.
+
+Com base na ARPA e no MRR, você pode criar estratégias para aumentar a sua receita média, além de conquistar novos clientes e controlar o seu churn.
+
+Como calcular o ARPA?
+Divida o resultado do MRR pelo número total de clientes ativos
+ARPA = MRR / número de clientes ativos.
+Pegando o valor do MRR usado de exemplo acima, o cálculo fica:
+
+ARPA = 28.000 / 300
+ARPA = 93,3.
+6. Ticket médio
+O ticket médio corresponde ao valor médio que cada cliente gasta em compras na sua empresa. 
+
+Quando mais usuários passam a adquirir um serviço adicional ou um pacote premium, o ticket médio aumenta.
+
+O ticket médio também é uma métrica importante para o planejamento de caixa da sua empresa. 
+
+Você pode seguir a estratégia de trazer mais clientes ou aumentar o valor médio de gasto para ter um lucro maior.
+
+Como calcular o ticket médio?
+Para calcular o ticket médio atual da sua empresa, é preciso determinar um período a ser analisado. 
+
+Por exemplo: um mês ou um trimestre.
+
+Divida o total de vendas nesse período pelo número de clientes (usuários) responsáveis por estas vendas.
+
+Ticket médio = Valor total em vendas / número de clientes.
+7. ARR (faturamento recorrente anual)
+O ARR, ou anual recurring revenue, calcula o faturamento recorrente anual da empresa. 
+
+Essa métrica leva em consideração vendas novas e também cancelamentos (churn rate).
+
+É uma das métricas SaaS mais usadas e amadas por investidores. 
+
+O acompanhamento do ARR é importante tanto para saúde financeira quanto para rever as metas e traçar uma nova estratégia para o seu negócio.
+
+Como calcular o ARR?
+Para calcular essa métrica, basta multiplicar por 12 o MRR (receita recorrente mensal).
+
+ARR = MRR x 12.
+A empresa SaaS ideal deve ter sempre um ARR alto. 
+
+Para alcançar um bom índice, é preciso investir em ações que favoreçam um bom desempenho em vendas novas e também em ações para manter um baixo churn rate.
+
+Alcançar um ARR alto depende necessariamente desses dois fatores. 
+
+Se a sua empresa tiver uma excelente taxa de vendas novas, mas taxas de cancelamento elevadas, o ARR será pequeno.
+
+Ao mesmo tempo, se a empresa tiver baixa taxa de churn rate, mas desempenho fraco em vendas novas, este KPI também será afetado negativamente.
+
+8. Quick ratio
+O quick ratio mede a eficiência de crescimento da empresa, calculando a relação entre o MRR ganho e o MRR perdido. 
+
+Um quick ratio acima de 1 indica crescimento saudável.
+
+Como calcular o quick ratio?
+Quick ratio = MRR ganho / MRR perdido.
+9. LCR (taxa de conversão de leads)
+Mais conhecido como LCR, o lead conversion rate calcula a conversão dos seus leads em vendas.
+
+Com essa métrica, é possível entender se a estratégia de marketing está dando certo, se os leads que estão chegando para qualificação realmente fazem sentido para o negócio, e assim, ser mais assertivo com os investimentos em marketing.
+
+Como calcular o LCR?
+Divida o número de novos clientes de um certo período pelo número de leads gerados neste mesmo período e multiplique por 100.
+
+10. LVR (taxa de velocidade de leads)
+É preciso medir a velocidade da geração de leads para determinar estratégias e saber como anda o crescimento da sua empresa. 
+
+Para isso, existe uma métrica chamada lead velocity rate, ou LVR.
+
+Como calcular o LVR?
+Descubra a diferença entre os leads que foram gerados no mês passado para o atual
+Divida a diferença pelo número de leads gerados no mês presente
+Multiplique por 100.
+Assim, é possível acompanhar a performance do seu time comercial e definir estratégias de negócio para os próximos meses.
+
+11. Expansion revenue
+Expansion revenue mede a receita adicional gerada a partir de clientes existentes, seja por meio de upsells ou cross-sells. 
+
+É uma métrica importante para avaliar a capacidade de sua empresa de aumentar a receita sem adquirir novos clientes.
+
+Como calcular o expansion revenue?
+Expansion Revenue = receita de upsells + receita de cross-sells.
+12. GM (margem bruta)
+GM é a sigla para gross margin, ou margem bruta, métrica que representa a porcentagem do faturamento restante após considerar os custos de prestação do serviço em uma empresa SaaS.
+
+Quanto maior for essa porcentagem, maior o valor da empresa. 
+
+Isso significa que mesmo que o seu faturamento absoluto seja pequeno, ela terá uma alta lucratividade, pois sua margem bruta de lucros é alta.
+
+Apesar de ser uma métrica SaaS pouco usada por startups no Brasil, ela pode ajudar muito na avaliação da saúde do negócio.
+
+Como calcular a margem bruta?
+GM = lucro bruto / receita total x 100.
+13. Growth rate (taxa de crescimento)
+Growth rate, ou taxa de crescimento, se refere à porcentagem que a economia de uma empresa cresceu entre um período e outro. 
+
+Esse crescimento é nominal, ou seja, ele não leva em conta ajustes inflacionários.
+
+Em geral, essa métrica é usada para mensurar a receita (MRR) nas empresas da economia da recorrência, mas pode ser aplicada para medir outros fatores.
+
+Como calcular o growth rate?
+Growth rate = valor final do período mensurado – valor inicial / valor inicial.
+Um dos tipos mais usados de métricas SaaS para growth rate é o MoM (month over month, ou seja, mês a mês), que leva em consideração o crescimento em relação ao mês anterior.
+
+Também são importantes o QoQ (quarter over quarter, considerando o crescimento entre trimestres) e o YoY (year over year, de um ano para o outro).
+
+14. NPS (net promoter score)
+O NPS é uma métrica para medir o nível de satisfação dos clientes com a sua empresa. Após a pesquisa, eles são divididos em três categorias:
+
+Promotores: são clientes satisfeitos que irão divulgar sua marca para outras pessoas e voltar a comprar
+Neutros: eles não tiveram uma experiência ruim com a sua marca, mas também nada surpreendente
+Detratores: esses tiveram uma experiência ruim com seu produto ou serviço e com certeza não recomendam sua marca para outras pessoas.
+Como calcular o NPS?
+Primeiro, é preciso aplicar uma pesquisa, que você aprende a fazer lendo este post sobre o NPS. Depois, aplique a seguinte fórmula:
+
+NPS = % de promotores – % de detratores.
+A partir dessa métrica, é possível entender um pouco melhor da imagem que sua empresa passa para os clientes, além do nível de satisfação que eles estão tendo com seu produto ou serviço
+
+15. North Star Metric (Métrica SaaS da Estrela-Guia)
+A métrica da estrela-guia não é um indicador específico: cada empresa escolhe a sua. 
+
+Deve ser um indicador que esteja diretamente ligado ao impacto do seu produto ou serviço na vida do cliente.
+
+É uma métrica que toda empresa pode impactar e acompanhar, algo para realmente seguir. 
+
+Por exemplo, a Uber escolheu o total de corridas diárias como estrela guia.
+
+Isso porque através dessa única métrica a empresa consegue medir aumento de receita, engajamento do usuário, participação de mercado e muito mais.

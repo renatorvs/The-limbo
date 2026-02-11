@@ -1,0 +1,265 @@
+-- ==================================================================
+-- ARQUIVO: schema_the_limbo.sql
+-- DESCRIÇÃO: Estrutura completa para o SaaS "THE LIMBO" (Monólito Modular)
+-- DIALETO: PostgreSQL 15+
+-- ==================================================================
+
+-- 1. HABILITAR EXTENSÕES
+-- Necessário para UUIDs
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Necessário para RAG/AI (Armazenamento de Vetores)
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- 2. FUNÇÃO AUXILIAR PARA UPDATED_AT
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- ==================================================================
+-- MÓDULO: CORE (Identidade e Acesso)
+-- ==================================================================
+
+CREATE TABLE companies (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL,
+    cnpj_or_tax_id TEXT,
+    industry TEXT, -- 'EdTech', 'FinTech', etc.
+    logo_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    full_name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    role TEXT DEFAULT 'admin', -- 'admin', 'editor', 'viewer'
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ==================================================================
+-- MÓDULO: BACKBONE (Finanças, RH e Operações) - O "Coração" do Limbo
+-- ==================================================================
+
+-- Centros de Custo (Ex: Marketing, Tech, Vendas)
+CREATE TABLE backbone_cost_centers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    name TEXT NOT NULL, 
+    code TEXT NOT NULL, -- 'MKT-001', 'DEV-002'
+    budget_limit DECIMAL(15, 2) DEFAULT 0.00, -- Limite para alerta da IA
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Contas Bancárias / Caixas
+CREATE TABLE backbone_bank_accounts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    bank_name TEXT NOT NULL,
+    account_type TEXT, -- 'checking', 'investment', 'credit_card'
+    current_balance DECIMAL(15, 2) DEFAULT 0.00,
+    currency TEXT DEFAULT 'BRL'
+);
+
+-- O Livro Razão (Ledger) - A Verdade Financeira
+CREATE TABLE backbone_ledger (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    cost_center_id UUID REFERENCES backbone_cost_centers(id),
+    account_id UUID REFERENCES backbone_bank_accounts(id),
+    
+    transaction_date DATE NOT NULL,
+    description TEXT NOT NULL,
+    amount DECIMAL(15, 2) NOT NULL, -- Negativo para saída, Positivo para entrada
+    
+    -- Categorização para a IA
+    type TEXT CHECK (type IN ('revenue', 'cogs', 'opex', 'capex', 'tax')), 
+    -- COGS: Custo do Serviço (Server), OPEX: Despesa Operacional (Salário)
+    
+    is_recurring BOOLEAN DEFAULT FALSE, -- Vital para cálculo de Burn Rate recorrente
+    recurrence_period TEXT, -- 'monthly', 'yearly'
+    
+    status TEXT DEFAULT 'realized', -- 'realized' (pago), 'projected' (futuro)
+    
+    document_url TEXT, -- Link para NF ou Recibo
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- RH: Funcionários e Prestadores
+CREATE TABLE backbone_staff (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    full_name TEXT NOT NULL,
+    job_title TEXT NOT NULL,
+    department TEXT,
+    contract_type TEXT, -- 'CLT', 'PJ', 'Freelancer'
+    salary_cost DECIMAL(15, 2), -- Custo total empresa
+    hired_at DATE,
+    terminated_at DATE
+);
+
+-- ==================================================================
+-- MÓDULO: PRODUCT (Engenharia e Roadmap)
+-- ==================================================================
+
+CREATE TABLE product_roadmap (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    description TEXT,
+    status TEXT CHECK (status IN ('backlog', 'planned', 'in_progress', 'testing', 'released')),
+    priority TEXT CHECK (priority IN ('low', 'medium', 'high', 'critical')),
+    
+    -- Vínculo estratégico
+    strategic_goal TEXT, -- Ex: "Aumentar Retenção", "Reduzir CAC"
+    target_date DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE product_engineering_metrics (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    metric_name TEXT NOT NULL, -- 'uptime', 'bugs_opened', 'deploy_frequency'
+    value DECIMAL(10, 2),
+    measured_at DATE DEFAULT CURRENT_DATE
+);
+
+-- ==================================================================
+-- MÓDULO: GROWTH (Marketing e Vendas)
+-- ==================================================================
+
+CREATE TABLE growth_campaigns (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    channel TEXT, -- 'Google Ads', 'Instagram', 'Email'
+    status TEXT DEFAULT 'active',
+    budget_total DECIMAL(15, 2),
+    start_date DATE,
+    end_date DATE,
+    external_platform_id TEXT, -- ID da Campanha no Google/Meta
+    platform_account_id TEXT -- ID da Conta de Anúncio
+);
+
+-- Índice para busca rápida na sincronização
+CREATE INDEX IF NOT EXISTS idx_growth_ext_id ON growth_campaigns(external_platform_id);
+
+CREATE TABLE growth_funnel_snapshot (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    date DATE NOT NULL,
+    visitors INT DEFAULT 0,
+    leads INT DEFAULT 0,
+    mql INT DEFAULT 0, -- Marketing Qualified Leads
+    sql INT DEFAULT 0, -- Sales Qualified Leads
+    customers INT DEFAULT 0,
+    cac DECIMAL(10, 2) -- Custo de Aquisição calculado
+);
+
+CREATE TABLE growth_daily_performance (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id),
+    campaign_id UUID REFERENCES growth_campaigns(id),
+    
+    reference_date DATE NOT NULL,
+    
+    -- Métricas de Topo de Funil
+    impressions INT DEFAULT 0,
+    clicks INT DEFAULT 0,
+    spend DECIMAL(10, 2) DEFAULT 0.00, -- Quanto gastou no dia
+    
+    -- Métricas Calculadas (Opcional, mas útil ter cacheado)
+    cpc DECIMAL(10, 2), -- Custo por Clique
+    ctr DECIMAL(5, 2), -- Taxa de Clique
+    
+    -- Conversões (Opcional, se a plataforma mandar)
+    platform_conversions INT DEFAULT 0,
+    
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(campaign_id, reference_date) -- Garante que não duplica dados do mesmo dia
+);
+
+-- ==================================================================
+-- MÓDULO: CS (Customer Success)
+-- ==================================================================
+
+CREATE TABLE cs_customers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    plan_name TEXT, -- 'Basic', 'Pro', 'Enterprise'
+    mrr_value DECIMAL(10, 2), -- Valor mensal que paga
+    health_score INT DEFAULT 100, -- 0 a 100
+    onboarding_status TEXT DEFAULT 'pending',
+    churned_at DATE -- Se preenchido, cliente saiu
+);
+
+CREATE TABLE cs_tickets (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    customer_id UUID REFERENCES cs_customers(id),
+    title TEXT NOT NULL,
+    category TEXT, -- 'bug', 'doubt', 'finance'
+    severity TEXT, -- 'low', 'critical'
+    status TEXT DEFAULT 'open',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ==================================================================
+-- MÓDULO: ADVISORY (IA, RAG e Conhecimento) - O Cérebro
+-- ==================================================================
+
+-- Tabela Vetorial: Onde ficam os Livros e o Plano de Negócio "picotados"
+CREATE TABLE advisory_knowledge_base (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    
+    content TEXT NOT NULL, -- O texto original (trecho do livro/plano)
+    
+    source_type TEXT NOT NULL, -- 'book', 'business_plan', 'meeting_notes', 'strategic_canvas'
+    source_title TEXT NOT NULL, -- Título do Livro ou Documento
+    
+    metadata JSONB, -- Ex: {"author": "Eric Ries", "chapter": 3, "page": 45}
+    
+    -- O Vetor (Embedding) - 1536 dim (Compatível com OpenAI/Gemini Pro)
+    embedding vector(1536),
+    
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Índice HNSW para busca vetorial ultra-rápida
+CREATE INDEX ON advisory_knowledge_base USING hnsw (embedding vector_cosine_ops);
+
+-- Histórico de Conversas (Memória do Assessor)
+CREATE TABLE advisory_sessions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id),
+    title TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE advisory_messages (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    session_id UUID REFERENCES advisory_sessions(id) ON DELETE CASCADE,
+    role TEXT CHECK (role IN ('user', 'assistant', 'system')),
+    content TEXT NOT NULL,
+    
+    -- Auditoria: Quais dados a IA olhou para dar essa resposta?
+    referenced_sources JSONB, -- Ex: ["finance_ledger:id_123", "knowledge_base:id_999"]
+    
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ==================================================================
+-- TRIGGERS DE ATUALIZAÇÃO (Automáticos)
+-- ==================================================================
+
+CREATE TRIGGER update_companies_modtime BEFORE UPDATE ON companies FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE TRIGGER update_backbone_ledger_modtime BEFORE UPDATE ON backbone_ledger FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();

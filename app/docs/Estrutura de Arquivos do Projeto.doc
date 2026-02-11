@@ -1,0 +1,74 @@
+THE-LIMBO/
+├── .env                       # Variáveis de ambiente (OPENAI_API_KEY, DB_URL)
+├── .gitignore
+├── README.md
+├── requirements.txt           # fastapi, uvicorn, sqlalchemy, psycopg2, langchain...
+├── alembic.ini                # Configuração de Migrações do Banco
+│
+├── alembic/                   # Migrações de Banco de Dados (Versionamento do SQL)
+│   └── versions/
+│
+├── scripts/                   # Scripts de Automação e Ingestão de Dados
+│   ├── ingest_books.py        # Lê PDFs/EPUBs e salva vetores no banco
+│   ├── ingest_plan.py         # Lê seu Plano de Negócio e atualiza o contexto
+│   └── seed_db.py             # Popula dados iniciais de teste
+│
+└── app/                       # CÓDIGO FONTE PRINCIPAL
+    ├── main.py                # Ponto de entrada (FastAPI App)
+    ├── __init__.py
+    │
+    ├── core/                  # INFRAESTRUTURA COMPARTILHADA
+    │   ├── config.py          # Settings (Pydantic BaseSettings)
+    │   ├── database.py        # SessionLocal, Engine e Base do SQLAlchemy
+    │   ├── security.py        # Autenticação, JWT, Hashing de senhas
+    │   └── exceptions.py      # Tratamento de erros global
+    │
+    ├── modules/               # OS DOMÍNIOS DO NEGÓCIO (Modular Monolith)
+    │   │
+    │   ├── backbone/          # (FINANÇAS, RH, OPERAÇÕES)
+    │   │   ├── __init__.py
+    │   │   ├── models.py      # Classes SQLAlchemy: Ledger, CostCenter, Staff
+    │   │   ├── schemas.py     # Pydantic: FinanceTransactionCreate, StaffOut
+    │   │   ├── service.py     # Lógica: Calcular Burn Rate, Validar Orçamento
+    │   │   └── router.py      # Endpoints: POST /transaction, GET /runway
+    │   │
+    │   ├── growth/            # (MARKETING & VENDAS)
+    │   │   ├── __init__.py
+    │   │   ├── models.py      # Classes: Campaign, FunnelSnapshot
+    │   │   ├── schemas.py
+    │   │   ├── service.py     # Lógica: Calcular CAC, LTV
+    │   │   └── router.py
+    │   │
+    │   ├── product/           # (ENGENHARIA & ROADMAP)
+    │   │   ├── __init__.py
+    │   │   ├── models.py      # Classes: RoadmapItem, EngineeringMetrics
+    │   │   ├── schemas.py
+    │   │   └── router.py
+    │   │
+    │   ├── cs/                # (CUSTOMER SUCCESS)
+    │   │   ├── __init__.py
+    │   │   ├── models.py      # Classes: Customer, Ticket
+    │   │   ├── schemas.py
+    │   │   └── router.py
+    │   │
+    │   └── advisory/          # (O CÉREBRO: RAG + LLM)
+    │       ├── __init__.py
+    │       ├── models.py      # Classes: AdvisorySession, KnowledgeBase (Vetor)
+    │       ├── schemas.py     # ChatRequest, AdvisoryResponse
+    │       ├── router.py      # Endpoint: POST /chat/ask
+    │       │
+    │       ├── agent.py       # A Lógica do Agente (LangChain/LLM Chain)
+    │       ├── prompts.py     # System Prompts (As "personas" do CFO/CMO)
+    │       ├── tools.py       # Ferramentas que a IA pode chamar (ex: get_balance())
+    │       └── vector_store.py # Funções para buscar chunks nos livros (pgvector)
+    │
+    ├── templates/             # FRONTEND (Jinja2 - Opcional se for API pura)
+    │   ├── base.html
+    │   ├── dashboard/
+    │   │   ├── finance.html   # Gráficos de fluxo de caixa
+    │   │   └── chat.html      # Interface do chat com o Assessor
+    │   └── partials/
+    │
+    └── utils/                 # HELPERS GERAIS
+        ├── formatting.py      # Formatar moeda (R$), datas
+        └── logger.py          # Configuração de logs

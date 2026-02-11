@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Roadmap do Produto - THE-LIMBO{% endblock %}
+
+{% block content %}
+<div class="container-fluid h-100">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">Roadmap do Produto</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newItemModal"><i
+                class="fas fa-plus"></i> Novo Item</button>
+    </div>
+
+    <div class="row h-100">
+        <div class="col-md-10">
+            <div class="row flex-nowrap overflow-auto pb-4" style="height: calc(100vh - 150px);">
+
+                {% macro kanban_col(title, items, border_color) %}
+                <div class="col-md-3 col-sm-6" style="min-width: 280px;">
+                    <div class="card bg-light h-100 border-top border-4 {{ border_color }}">
+                        <div class="card-header bg-transparent fw-bold text-uppercase small text-muted">
+                            {{ title }} <span class="badge bg-secondary rounded-pill float-end">{{ items|length
+                                }}</span>
+                        </div>
+                        <div class="card-body overflow-auto custom-scrollbar">
+                            {% for item in items %}
+                            <div
+                                class="card mb-2 shadow-sm border-start border-4 
+                                {% if item.priority == 'critical' %}border-danger{% elif item.priority == 'high' %}border-warning{% else %}border-secondary{% endif %}">
+                                <div class="card-body p-3">
+                                    <h6 class="card-title fw-bold">{{ item.title }}</h6>
+                                    <p class="card-text small text-muted mb-2">{{ item.description }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-white text-dark border">
+                                            {% if item.priority == 'critical' %}Crítico
+                                            {% elif item.priority == 'high' %}Alta
+                                            {% elif item.priority == 'medium' %}Média
+                                            {% else %}Baixa{% endif %}
+                                        </span>
+                                        <div class="avatar-group">
+                                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+                                                style="width:24px; height:24px; font-size:10px;">DE</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                            {% if not items %}
+                            <div class="text-center text-muted mt-5 small">Sem itens</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endmacro %}
+
+                {{ kanban_col("Backlog", backlog_items, "border-secondary") }}
+                {{ kanban_col("Em Andamento", in_progress_items, "border-primary") }}
+                {{ kanban_col("Testes", testing_items, "border-warning") }}
+                {{ kanban_col("Lançado", released_items, "border-success") }}
+
+            </div>
+        </div>
+
+        <div class="col-md-2 border-start">
+            <h5 class="h6 text-uppercase text-muted fw-bold mb-3">Saúde da Engenharia</h5>
+
+            <div class="mb-4">
+                <label class="small text-muted">Uptime (Disponibilidade)</label>
+                <h3 class="fw-bold text-success">{{ metrics.uptime }}%</h3>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ metrics.uptime }}%"></div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="small text-muted">Bugs Abertos</label>
+                <h3 class="fw-bold text-danger">{{ metrics.bugs_open }}</h3>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: 20%"></div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="small text-muted">Freq. de Deploy</label>
+                <h3 class="fw-bold text-info">{{ metrics.deploy_frequency }}/dia</h3>
+                <svg width="100%" height="30" class="mt-1">
+                    <polyline points="0,25 20,20 40,22 60,10 80,15 100,5" fill="none" stroke="#0dcaf0"
+                        stroke-width="2" />
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- New Item Modal -->
+<div class="modal fade" id="newItemModal" tabindex="-1" aria-labelledby="newItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="newItemModalLabel">Novo Item do Roadmap</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createItemForm">
+                    <div class="mb-3">
+                        <label for="itemTitle" class="form-label fw-bold">Título</label>
+                        <input type="text" class="form-control" id="itemTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="itemDesc" class="form-label fw-bold">Descrição</label>
+                        <textarea class="form-control" id="itemDesc" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="itemStatus" class="form-label fw-bold">Status</label>
+                            <select class="form-select" id="itemStatus" name="status">
+                                <option value="backlog">Backlog</option>
+                                <option value="in_progress">Em Andamento</option>
+                                <option value="testing">Testes</option>
+                                <option value="released">Lançado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="itemPriority" class="form-label fw-bold">Prioridade</label>
+                            <select class="form-select" id="itemPriority" name="priority">
+                                <option value="low">Baixa</option>
+                                <option value="medium">Média</option>
+                                <option value="high">Alta</option>
+                                <option value="critical">Crítica</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="submitCreateItem()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function submitCreateItem() {
+        const form = document.getElementById('createItemForm');
+        const data = {
+            title: form.title.value,
+            description: form.description.value,
+            status: form.status.value,
+            priority: form.priority.value
+        };
+
+        try {
+            const response = await fetch('/api/v1/product/roadmap', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Item criado com sucesso!');
+                location.reload();
+            } else {
+                const error = await response.json();
+                alert('Erro ao criar item: ' + JSON.stringify(error));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Um erro ocorreu ao criar o item.');
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: the_limbo_app
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_URL=postgresql://postgres:admin@db:5432/THE_LIMBO
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: the_limbo_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin # Confirme que a senha é esta
+      POSTGRES_DB: THE_LIMBO
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Sucesso do Cliente - THE-LIMBO{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h2 mb-4">Sucesso do Cliente (CS)</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow py-2 border-start border-4 border-danger h-100">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Taxa de Churn</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.churn_rate }}%</div>
+                    <div class="mt-2">
+                        <small class="text-muted">Meta de Churn Negativo: <i class="fas fa-arrow-down"></i>
+                            Saudável</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow py-2 border-start border-4 border-primary h-100">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">NPS (Net Promoter Score)
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.nps_score }}</div>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div class="progress-bar bg-success" style="width: {{ stats.nps_promoters_pct }}%"></div>
+                        <div class="progress-bar bg-warning" style="width: {{ stats.nps_neutrals_pct }}%"></div>
+                        <div class="progress-bar bg-danger" style="width: {{ stats.nps_detractors_pct }}%"></div>
+                    </div>
+                    <small class="text-muted">Promotores - Detratores</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow py-2 border-start border-4 border-success h-100">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Receita de Expansão</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">R$ {{ stats.expansion_revenue }}</div>
+                    <small class="text-muted">Upsells e Cross-sells</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary">Categorias de Clientes (NPS)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="h4 font-weight-bold text-success">{{ stats.nps_promoters_pct }}%</div>
+                            <div class="small text-muted text-uppercase">Promotores</div>
+                        </div>
+                        <div class="col-md-4 border-start border-end">
+                            <div class="h4 font-weight-bold text-warning">{{ stats.nps_neutrals_pct }}%</div>
+                            <div class="small text-muted text-uppercase">Neutros</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="h4 font-weight-bold text-danger">{{ stats.nps_detractors_pct }}%</div>
+                            <div class="small text-muted text-uppercase">Detratores</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary">Visão Geral da Saúde dos Clientes</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Plano</th>
+                                    <th>MRR (Recorrência)</th>
+                                    <th>Saúde (Health Score)</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for customer in customers %}
+                                <tr>
+                                    <td>{{ customer.name }}</td>
+                                    <td>{{ customer.plan_name }}</td>
+                                    <td>R$ {{ customer.mrr_value }}</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar {% if customer.health_score >= 70 %}bg-success{% elif customer.health_score >= 40 %}bg-warning{% else %}bg-danger{% endif %}"
+                                                role="progressbar" style="width: {{ customer.health_score }}%"
+                                                aria-valuenow="{{ customer.health_score }}">{{ customer.health_score }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if customer.health_score >= 70 %}
+                                        <span class="badge bg-success">Saudável</span>
+                                        {% elif customer.health_score >= 40 %}
+                                        <span class="badge bg-warning text-dark">Em Risco</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Crítico</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
