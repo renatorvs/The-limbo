@@ -4,6 +4,11 @@ import uuid
 from datetime import datetime, timedelta
 
 # CONFIGURAÇÕES
+# ══════════════════════════════════════════════════════════════════
+# OPÇÃO SECUNDÁRIA — sync direto de banco (mesmo ambiente/rede).
+# Fonte PRIMÁRIA recomendada: agentes da app enviam relatório JSON via
+#   POST /api/v1/reports/ingest  (ver scripts/send_report_example.py)
+# ══════════════════════════════════════════════════════════════════
 SOFIA_DB_URL = "postgresql://user:pass@host:5432/sofia_db"
 LIMBO_DB_URL = "postgresql://user:pass@localhost:5433/THE_LIMBO"
 COMPANY_ID = "SEU-UUID-DA-SOFIA-NO-LIMBO" # ID da empresa "Sofia" dentro do Limbo

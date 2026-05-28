@@ -2,15 +2,19 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, case
 from . import models, schemas
 from datetime import datetime
+from uuid import UUID
+from typing import Optional
 
-def get_dashboard_stats(db: Session) -> schemas.DashboardStats:
-    # 1. NPS Calculation
-    nps_counts = db.query(
+def get_dashboard_stats(db: Session, company_id: Optional[UUID] = None) -> schemas.DashboardStats:
+    nps_q = db.query(
         func.count(models.NpsSurvey.id).label("total"),
         func.sum(case((models.NpsSurvey.score >= 9, 1), else_=0)).label("promoters"),
         func.sum(case((models.NpsSurvey.score <= 6, 1), else_=0)).label("detractors"),
         func.sum(case(((models.NpsSurvey.score >= 7) & (models.NpsSurvey.score <= 8), 1), else_=0)).label("neutrals")
-    ).first()
+    )
+    if company_id:
+        nps_q = nps_q.filter(models.NpsSurvey.company_id == company_id)
+    nps_counts = nps_q.first()
 
     total_surveys = nps_counts.total or 0
     promoters = nps_counts.promoters or 0
@@ -29,16 +33,22 @@ def get_dashboard_stats(db: Session) -> schemas.DashboardStats:
         nps_neutrals_pct = 0
 
     # 2. Financials (MRR & Active Customers)
-    financials = db.query(
+    cust_q = db.query(
         func.sum(models.Customer.mrr_value).label("total_mrr"),
-        func.count(models.Customer.id).label("active_customers")
-    ).filter(models.Customer.churned_at == None).first()
+        func.count(models.Customer.id).label("active_customers"),
+    ).filter(models.Customer.churned_at == None)
+    if company_id:
+        cust_q = cust_q.filter(models.Customer.company_id == company_id)
+    financials = cust_q.first()
 
     total_mrr = financials.total_mrr or 0.0
     active_customers = financials.active_customers or 0
 
     # 3. Churn Rate (Simplified: Churned / (Active + Churned)) - This is a rough approximation
-    churned_count = db.query(func.count(models.Customer.id)).filter(models.Customer.churned_at != None).scalar() or 0
+    churn_q = db.query(func.count(models.Customer.id)).filter(models.Customer.churned_at != None)
+    if company_id:
+        churn_q = churn_q.filter(models.Customer.company_id == company_id)
+    churned_count = churn_q.scalar() or 0
     total_customers_ever = active_customers + churned_count
     
     churn_rate = 0.0
@@ -59,8 +69,11 @@ def get_dashboard_stats(db: Session) -> schemas.DashboardStats:
         nps_detractors_pct=int(nps_detractors_pct)
     )
 
-def get_customers(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Customer).order_by(models.Customer.health_score.asc()).offset(skip).limit(limit).all()
+def get_customers(db: Session, skip: int = 0, limit: int = 100, company_id: Optional[UUID] = None):
+    q = db.query(models.Customer)
+    if company_id:
+        q = q.filter(models.Customer.company_id == company_id)
+    return q.order_by(models.Customer.health_score.asc()).offset(skip).limit(limit).all()
 
 def create_customer(db: Session, customer: schemas.CustomerCreate):
     db_obj = models.Customer(**customer.dict())

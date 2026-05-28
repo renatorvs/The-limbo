@@ -139,6 +139,24 @@
 
             <ul class="sidebar-menu">
                 <li>
+                    <a href="/api/v1/reports/docs"
+                        class="{% if 'reports' in request.url.path %}active{% endif %}">
+                        <i class="fas fa-file-import"></i> App Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="/api/v1/hub/"
+                        class="{% if '/hub' in request.url.path %}active{% endif %}">
+                        <i class="fas fa-exchange-alt"></i> Hub I/O
+                    </a>
+                </li>
+                <li>
+                    <a href="/api/v1/cockpit/dashboard"
+                        class="{% if 'cockpit' in request.url.path %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i> MVP Cockpit
+                    </a>
+                </li>
+                <li>
                     <a href="/" class="{% if request.url.path == '/' %}active{% endif %}">
                         <i class="fas fa-chart-pie"></i> Overview
                     </a>
@@ -162,6 +180,12 @@
                 <li>
                     <a href="/api/v1/cs/dashboard" class="{% if 'cs' in request.url.path %}active{% endif %}">
                         <i class="fas fa-handshake"></i> Customer Success
+                    </a>
+                </li>
+                <li>
+                    <a href="/api/v1/agents/command-center"
+                        class="{% if 'agents' in request.url.path %}active{% endif %}">
+                        <i class="fas fa-sitemap"></i> Command Center
                     </a>
                 </li>
                 <li>

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Hub — Sofia & BodyVision{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <h1 class="h3 mb-1"><i class="fas fa-exchange-alt text-primary"></i> Hub INPUT → LIMBO → OUTPUT</h1>
+    <p class="text-muted mb-4">Sofia Education IA e BodyVision.IA conectadas ao centro de comando</p>
+
+    <div class="row g-4">
+        {% for status in statuses %}
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">{{ status.name }}</span>
+                    <span class="badge {% if status.overall_health == 'green' %}bg-success{% elif status.overall_health == 'yellow' %}bg-warning text-dark{% elif status.overall_health == 'red' %}bg-danger{% else %}bg-secondary{% endif %}">
+                        {{ status.overall_health or 'sem dados' }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <i class="fas fa-arrow-down text-success"></i>
+                                <div class="small fw-bold">INPUT</div>
+                                <div class="small text-muted">
+                                    {% if status.last_input_at %}
+                                    {{ status.last_input_at.strftime('%d/%m %H:%M') }}
+                                    {% else %}Nunca{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <i class="fas fa-arrow-up text-primary"></i>
+                                <div class="small fw-bold">OUTPUT</div>
+                                <div class="small text-muted">
+                                    {% if status.last_output_at %}
+                                    {{ status.last_output_at.strftime('%d/%m %H:%M') }}
+                                    {% if status.has_pending_output %}<span class="badge bg-info">novo</span>{% endif %}
+                                    {% else %}Nunca{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="table table-sm small mb-3">
+                        <tr><td class="text-muted">app_key</td><td><code>{{ status.app_key }}</code></td></tr>
+                        <tr><td class="text-muted">company_id</td><td><code class="small">{{ status.company_id or '—' }}</code></td></tr>
+                        <tr><td class="text-muted">INPUT</td><td><code>POST /api/v1/hub/{{ status.app_key }}/input</code></td></tr>
+                        <tr><td class="text-muted">OUTPUT</td><td><code>GET /api/v1/hub/{{ status.app_key }}/output</code></td></tr>
+                    </table>
+
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="/api/v1/cockpit/dashboard" class="btn btn-sm btn-outline-primary"
+                            onclick="document.getElementById('companySwitcher').value='{{ status.company_id }}'; switchCompany('{{ status.company_id }}');">
+                            MVP Cockpit
+                        </a>
+                        <a href="/api/v1/hub/samples/{{ status.app_key }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            Sample INPUT
+                        </a>
+                        <a href="/api/v1/hub/{{ status.app_key }}/output" target="_blank" class="btn btn-sm btn-primary">
+                            Ver OUTPUT
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header">Fluxo</div>
+        <div class="card-body">
+            <pre class="mb-0 small">Sofia Education IA  ──INPUT (JSON)──►  LIMBO  ──OUTPUT (briefing+KPIs+ações)──►  Sofia
+BodyVision.IA       ──INPUT (JSON)──►  LIMBO  ──OUTPUT (briefing+KPIs+ações)──►  BodyVision</pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

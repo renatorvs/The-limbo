@@ -14,6 +14,10 @@ from app.modules.growth.models import *
 from app.modules.product.models import *
 from app.modules.cs.models import *
 from app.modules.advisory.models import *
+from app.modules.agents.models import *
+from app.modules.cockpit.models import *
+from app.modules.reports.models import *
+from app.modules.hub.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

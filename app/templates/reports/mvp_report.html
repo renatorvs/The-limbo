@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório MVP — {{ report.company.name }}</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem; color: #1a1a1a; line-height: 1.5; }
+        h1 { font-size: 1.6rem; border-bottom: 3px solid #0d6efd; padding-bottom: 0.5rem; }
+        h2 { font-size: 1.15rem; margin-top: 2rem; color: #333; }
+        .meta { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; }
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; }
+        .badge-green { background: #d1e7dd; color: #0f5132; }
+        .badge-yellow { background: #fff3cd; color: #664d03; }
+        .badge-red { background: #f8d7da; color: #842029; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; text-align: left; }
+        th { background: #f8f9fa; }
+        .status-ok { color: #198754; font-weight: 600; }
+        .status-warn { color: #fd7e14; font-weight: 600; }
+        .status-bad { color: #dc3545; font-weight: 600; }
+        .status-none { color: #6c757d; }
+        .alert { background: #fff3cd; border: 1px solid #ffc107; padding: 1rem; border-radius: 8px; margin: 1rem 0; }
+        .gaps { background: #f8f9fa; padding: 1rem; border-radius: 8px; }
+        .gaps ul { margin: 0.5rem 0 0 1.2rem; }
+        .synthesis { background: #e7f1ff; padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.9rem; }
+        .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #dee2e6; font-size: 0.8rem; color: #888; }
+        .print-hint { background: #e7f1ff; padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.85rem; }
+        @media print { .print-hint, .no-print { display: none; } body { padding: 1rem; } }
+    </style>
+</head>
+<body>
+    <div class="print-hint no-print">
+        Relatório portátil — salve como PDF (Ctrl+P) ou baixe JSON/Markdown nos links abaixo.
+        {% if download_links %}
+        <br>
+        <a href="{{ download_links.json }}">JSON</a> ·
+        <a href="{{ download_links.markdown }}">Markdown</a> ·
+        <a href="javascript:window.print()">Imprimir / PDF</a>
+        {% endif %}
+    </div>
+
+    <h1>Relatório MVP — {{ report.company.name }}</h1>
+    <div class="meta">
+        Gerado em {{ report.generated_at[:19] | replace('T', ' ') }} UTC ·
+        ID: <code>{{ report.company.id }}</code>
+        {% if report.company.industry %} · {{ report.company.industry }}{% endif %}
+    </div>
+
+    <p>
+        Saúde geral:
+        <span class="badge badge-{{ report.summary.overall_health }}">{{ report.summary.overall_health_label }}</span>
+        · {{ report.summary.total_at_risk }} KPI(s) em risco
+        · {{ report.summary.data_gaps_count }} sem dados
+    </p>
+
+    {% if report.at_risk_items %}
+    <div class="alert">
+        <strong>Atenção imediata:</strong>
+        <ul>
+            {% for item in report.at_risk_items %}
+            <li>{{ item.domain }} / {{ item.metric }} — atual {{ item.current or '?' }} vs meta {{ item.target }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% for domain in report.domains %}
+    <h2>{{ domain.label }}</h2>
+    <table>
+        <thead>
+            <tr><th>KPI</th><th>Atual</th><th>Meta MVP</th><th>Gap</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            {% for m in domain.metrics %}
+            <tr>
+                <td><strong>{{ m.label }}</strong></td>
+                <td>{% if m.current_value is not none %}{{ "%.1f"|format(m.current_value) }} {{ m.unit }}{% else %}—{% endif %}</td>
+                <td>{{ m.target_value }} {{ m.unit }}</td>
+                <td>{% if m.gap_percent is not none %}{{ m.gap_percent }}%{% else %}—{% endif %}</td>
+                <td class="status-{% if m.status == 'on_track' %}ok{% elif m.status == 'no_data' %}none{% elif m.status == 'at_risk' %}warn{% else %}bad{% endif %}">
+                    {{ m.status_label }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+
+    {% if report.data_gaps %}
+    <h2>Dados faltando (outro ambiente?)</h2>
+    <div class="gaps">
+        <p>Preencha estes KPIs manualmente ou importe JSON:</p>
+        <ul>
+            {% for gap in report.data_gaps %}
+            <li>{{ gap }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if report.recent_orchestrations %}
+    <h2>Análises recentes dos agentes</h2>
+    {% for o in report.recent_orchestrations %}
+    <h3 style="font-size:1rem;">{{ o.objective[:100] }}</h3>
+    {% if o.synthesis %}
+    <div class="synthesis">{{ o.synthesis[:2000] }}</div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    <div class="footer">
+        THE-LIMBO MVP Report v{{ report.report_version }} — portable · pode ser arquivado ou reimportado via API.
+    </div>
+</body>
+</html>

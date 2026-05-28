@@ -10,8 +10,8 @@ alembic
 pydantic[email]
 pydantic-settings
 python-jose[cryptography]
-passlib
-bcrypt==3.2.2
+# passlib
+bcrypt
 httpx
 jinja2
 python-multipart

@@ -121,9 +121,17 @@
                 <form class="input-group" action="/api/v1/advisory/dashboard/chat" method="post">
                     {% if current_session_id %}
                     <input type="hidden" name="session_id" value="{{ current_session_id }}">
-                    <button class="btn btn-outline-secondary" type="button"><i class="fas fa-paperclip"></i></button>
-                    <input type="text" name="user_message" class="form-control"
-                        placeholder="Peça insights ao Oráculo..." aria-label="Mensagem" required>
+                    <select name="agent_id" id="agentSelect" class="form-select" style="max-width: 180px;" title="Escolha o agente"
+                        onchange="window.location='/api/v1/advisory/dashboard?session_id={{ current_session_id }}&agent='+this.value">
+                        {% for key, label in persona_labels.items() %}
+                        {% if key != 'manager' %}
+                        <option value="{{ key }}" {% if selected_agent == key %}selected{% endif %}>{{ label }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="user_message" id="userMessage" class="form-control"
+                        placeholder="Peça insights ao agente..." aria-label="Mensagem" required
+                        value="{{ prefill_prompt }}">
                     <button class="btn btn-primary" type="submit"><i class="fas fa-paper-plane"></i></button>
                     {% else %}
                     <input type="text" class="form-control" placeholder="Selecione ou inicie uma conversa..." disabled>
@@ -138,24 +146,91 @@
 
         <div class="col-md-3 border-start bg-light overflow-auto">
             <div class="p-3">
-                <h6 class="text-uppercase text-muted small fw-bold mb-3">Base de Conhecimento</h6>
+                <!-- Agente ativo -->
+                <h6 class="text-uppercase text-muted small fw-bold mb-2">Área de atuação</h6>
+                <div class="d-flex flex-wrap gap-1 mb-3">
+                    {% for key, label in persona_labels.items() %}
+                    {% if key != 'manager' %}
+                    <a href="/api/v1/advisory/dashboard?session_id={{ current_session_id or '' }}&agent={{ key }}"
+                        class="badge text-decoration-none {% if selected_agent == key %}bg-primary{% else %}bg-secondary{% endif %}">
+                        {{ key|upper }}
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                </div>
 
-                <div class="card shadow-sm mb-3">
-                    <div class="card-body p-3">
-                        <label class="form-label small fw-bold">Adicionar ao Cérebro</label>
-                        <input type="file" class="form-control form-control-sm mb-2">
-                        <button class="btn btn-sm btn-dark w-100">Upload PDF/EPUB</button>
+                <!-- Tabs: Sugestões | Histórico | Favoritos -->
+                <ul class="nav nav-tabs nav-fill small mb-2" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabSuggest">Sugestões</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabHistory">Histórico</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabFav">Favoritos</a></li>
+                </ul>
+                <div class="tab-content small">
+                    <div class="tab-pane fade show active" id="tabSuggest">
+                        {% for s in suggestions %}
+                        <a href="/api/v1/advisory/dashboard?session_id={{ current_session_id or '' }}&agent={{ selected_agent }}&prompt={{ s.prompt | urlencode }}"
+                            class="d-block mb-2 p-2 bg-white rounded border text-decoration-none text-dark">
+                            <strong>{{ s.label }}</strong>
+                            <div class="text-muted text-truncate">{{ s.prompt[:60] }}...</div>
+                        </a>
+                        {% endfor %}
+                        {% if not suggestions %}
+                        <p class="text-muted fst-italic">Nenhuma sugestão.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="tabHistory">
+                        {% for h in prompt_history %}
+                        <a href="/api/v1/advisory/dashboard?session_id={{ current_session_id or '' }}&agent={{ h.agent_id }}&prompt={{ h.prompt_text | urlencode }}"
+                            class="d-block mb-2 p-2 bg-white rounded border text-decoration-none text-dark">
+                            <span class="badge bg-light text-dark">{{ h.agent_id|upper }}</span>
+                            <div class="text-truncate">{{ h.prompt_text[:80] }}</div>
+                            <small class="text-muted">{{ h.created_at.strftime('%d/%m %H:%M') }}</small>
+                        </a>
+                        {% endfor %}
+                        {% if not prompt_history %}
+                        <p class="text-muted fst-italic">Nenhum histórico ainda.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="tabFav">
+                        {% for f in prompt_favorites %}
+                        <div class="mb-2 p-2 bg-white rounded border">
+                            <a href="/api/v1/advisory/dashboard?session_id={{ current_session_id or '' }}&agent={{ f.agent_id }}&prompt={{ f.prompt_text | urlencode }}"
+                                class="text-decoration-none text-dark">
+                                <strong>{{ f.label }}</strong>
+                                <div class="text-muted text-truncate">{{ f.prompt_text[:60] }}</div>
+                            </a>
+                            <form action="/api/v1/cockpit/prompts/favorites/{{ f.id }}/delete" method="post" class="mt-1">
+                                <input type="hidden" name="redirect" value="/api/v1/advisory/dashboard?session_id={{ current_session_id or '' }}&agent={{ selected_agent }}">
+                                <button type="submit" class="btn btn-link btn-sm text-danger p-0">Remover</button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                        {% if not prompt_favorites %}
+                        <p class="text-muted fst-italic">Nenhum favorito. Salve prompts usados abaixo.</p>
+                        {% endif %}
                     </div>
                 </div>
 
-                <h6 class="small fw-bold text-muted mt-4 mb-2">Documentos Ingeridos</h6>
+                <!-- Salvar favorito -->
+                {% if prefill_prompt %}
+                <div class="mt-3 p-2 bg-white rounded border">
+                    <form action="/api/v1/cockpit/prompts/favorites/form" method="post">
+                        <input type="hidden" name="agent_id" value="{{ selected_agent }}">
+                        <input type="hidden" name="prompt_text" value="{{ prefill_prompt }}">
+                        <input type="hidden" name="redirect" value="/api/v1/advisory/dashboard?session_id={{ current_session_id or '' }}&agent={{ selected_agent }}&prompt={{ prefill_prompt | urlencode }}">
+                        <input type="text" name="label" class="form-control form-control-sm mb-1" placeholder="Nome do favorito" required>
+                        <button type="submit" class="btn btn-sm btn-outline-warning w-100"><i class="fas fa-star"></i> Salvar nos favoritos</button>
+                    </form>
+                </div>
+                {% endif %}
+
+                <hr class="my-3">
+                <h6 class="text-uppercase text-muted small fw-bold mb-2">Base de Conhecimento</h6>
                 <div class="list-group list-group-flush fs-6">
                     {% for item in knowledge_base %}
                     <div class="list-group-item bg-transparent px-0 d-flex align-items-center">
                         <i class="fas fa-file-alt text-primary me-2"></i>
-                        <div class="text-truncate small flex-grow-1" title="{{ item.source_title }}">{{
-                            item.source_title }}</div>
-                        <span class="badge bg-success rounded-pill" style="font-size: 0.6em;">Pronto</span>
+                        <div class="text-truncate small flex-grow-1">{{ item.source_title }}</div>
                     </div>
                     {% endfor %}
                     {% if not knowledge_base %}

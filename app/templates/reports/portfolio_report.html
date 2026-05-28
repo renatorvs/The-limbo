@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório Portfolio — THE-LIMBO</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 960px; margin: 0 auto; padding: 2rem; }
+        h1 { border-bottom: 3px solid #0d6efd; padding-bottom: 0.5rem; }
+        .company-block { border: 1px solid #dee2e6; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .meta { color: #666; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 1rem; }
+        th, td { border: 1px solid #dee2e6; padding: 0.4rem 0.6rem; }
+        th { background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <h1>Relatório Portfolio — {{ report.company_count }} startups</h1>
+    <p class="meta">Gerado em {{ report.generated_at[:19] | replace('T', ' ') }} UTC</p>
+    <p>
+        Saudáveis: {{ report.portfolio_health.green }} ·
+        Atenção: {{ report.portfolio_health.yellow }} ·
+        Críticas: {{ report.portfolio_health.red }}
+    </p>
+
+    {% for co in report.companies %}
+    <div class="company-block">
+        <h2>{{ co.company.name }}</h2>
+        <p class="meta">ID: {{ co.company.id }} · {{ co.summary.overall_health_label }}</p>
+        {% for domain in co.domains %}
+        <h3>{{ domain.label }}</h3>
+        <table>
+            <tr><th>KPI</th><th>Atual</th><th>Meta</th><th>Status</th></tr>
+            {% for m in domain.metrics %}
+            <tr>
+                <td>{{ m.label }}</td>
+                <td>{% if m.current_value is not none %}{{ m.current_value }}{% else %}—{% endif %}</td>
+                <td>{{ m.target_value }}</td>
+                <td>{{ m.status_label }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</body>
+</html>

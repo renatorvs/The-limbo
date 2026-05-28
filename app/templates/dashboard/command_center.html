@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Command Center — THE-LIMBO{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1"><i class="fas fa-sitemap text-primary"></i> Command Center (HI-C)</h1>
+            <p class="text-muted mb-0">Orquestração multi-agente com supervisão humana</p>
+        </div>
+        <a href="/api/v1/advisory/dashboard" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-comments"></i> Chat Individual
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Orchestration Form -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <i class="fas fa-play-circle"></i> Nova Orquestração
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">
+                        O Manager Agent delegará para CFO, CMO, CPO e CS, depois o CEO sintetiza.
+                    </p>
+                    <form action="/api/v1/agents/command-center/run" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Modo</label>
+                            <select name="mode" class="form-select" id="orchMode">
+                                <option value="single">Startup atual</option>
+                                <option value="multi">Multi-startup (portfolio)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 d-none" id="multiCompanySelect">
+                            <label class="form-label fw-bold">Startups (selecione 2+)</label>
+                            {% for co in companies %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="company_ids"
+                                    value="{{ co.id }}" id="co{{ co.id }}">
+                                <label class="form-check-label" for="co{{ co.id }}">{{ co.name }}</label>
+                            </div>
+                            {% endfor %}
+                            {% if not companies %}
+                            <p class="small text-muted">Cadastre startups em Backbone &gt; Companies.</p>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Objetivo estratégico</label>
+                            <textarea name="objective" class="form-control" rows="4" required
+                                placeholder="Ex: Devo investir R$ 20k em marketing este trimestre?"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-robot"></i> Executar Multi-Agent Handoff
+                        </button>
+                    </form>
+                    <script>
+                        document.getElementById('orchMode').addEventListener('change', function () {
+                            document.getElementById('multiCompanySelect').classList.toggle('d-none', this.value !== 'multi');
+                        });
+                    </script>
+                </div>
+            </div>
+
+            <!-- Agent Registry -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <i class="fas fa-users-cog"></i> Agentes Disponíveis
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for agent in agents %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ agent.label }}</span>
+                        <span class="badge bg-secondary">{{ agent.tool_names|length }} tools</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- HI-C Approval Queue -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-user-check"></i> Fila HI-C — Aprovações Pendentes
+                    <span class="badge bg-dark ms-2">{{ pending_actions|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if pending_actions %}
+                    <div class="list-group list-group-flush">
+                        {% for action in pending_actions %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span class="badge bg-info text-dark">{{ action.agent_id|upper }}</span>
+                                    <span class="badge bg-light text-dark border">{{ action.action_type }}</span>
+                                    <p class="mb-1 mt-2">{{ action.description }}</p>
+                                    <small class="text-muted">{{ action.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <form action="/api/v1/agents/actions/{{ action.id }}/approve" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                    </form>
+                                    <form action="/api/v1/agents/actions/{{ action.id }}/reject" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger"><i class="fas fa-times"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+                        <p class="mb-0">Nenhuma ação pendente de aprovação.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Runs -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <i class="fas fa-history"></i> Orquestrações Recentes
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_runs %}
+                    <div class="accordion" id="runsAccordion">
+                        {% for run in recent_runs %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#run{{ run.id }}">
+                                    {{ run.objective[:80] }}{% if run.objective|length > 80 %}...{% endif %}
+                                    <small class="text-muted ms-2">{{ run.created_at.strftime('%d/%m %H:%M') }}</small>
+                                </button>
+                            </h2>
+                            <div id="run{{ run.id }}" class="accordion-collapse collapse"
+                                data-bs-parent="#runsAccordion">
+                                <div class="accordion-body">
+                                    <p class="small text-muted mb-2">
+                                        Agentes: {{ run.agents_used|join(', ') }}
+                                    </p>
+                                    {% if run.synthesis %}
+                                    <div class="bg-light p-3 rounded small">
+                                        {{ run.synthesis }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <p class="mb-0">Nenhuma orquestração executada ainda.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
